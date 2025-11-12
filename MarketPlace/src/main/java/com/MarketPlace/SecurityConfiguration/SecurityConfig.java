@@ -27,12 +27,13 @@ public class SecurityConfig {
         http
                 .securityMatcher("/**") // apply to all routes
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
-                        .requestMatchers("/api/products/**", "/api/categories/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers("/api/vendor/**").hasAnyRole("VENDOR", "SUPER_ADMIN")
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/vendor/**").hasAuthority("VENDOR")
+                        .requestMatchers("/api/products/**").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers

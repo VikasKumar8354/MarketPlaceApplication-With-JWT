@@ -6,6 +6,7 @@ import com.MarketPlace.Model.OrderItem;
 import com.MarketPlace.Model.Product;
 import com.MarketPlace.Service.OrderService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class OrderController {
     private final OrderService orderService;
     public OrderController(OrderService orderService) { this.orderService = orderService; }
 
+    @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody OrderDto orderDto) {
         Long buyerId = Long.parseLong(subject);
@@ -34,9 +36,11 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/list")
     public List<Order> listAll() { return orderService.listAll(); }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/buyer")
     public List<Order> listByBuyer(@AuthenticationPrincipal String subject) {
         Long buyerId = Long.parseLong(subject);

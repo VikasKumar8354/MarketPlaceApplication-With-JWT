@@ -21,7 +21,7 @@ import java.util.Optional;
 public class UserAuthService {
 
     private final UserRepository userRepo;
-    private final PasswordEncoder passwordEncoder;  // ✅ use PasswordEncoder, not BCryptPasswordEncoder
+    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     public UserAuthService(UserRepository userRepo, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {

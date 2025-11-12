@@ -9,6 +9,7 @@ import com.MarketPlace.Service.UserAuthService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,17 +27,20 @@ public class ProductController {
         this.userAuthService = userAuthService;
     }
 
+    @PreAuthorize("hasAuthority('VENDOR')")
     @GetMapping("/list")
     public Page<Product> list(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size) {
         return productService.listAll(PageRequest.of(page, size));
     }
 
+    @PreAuthorize("hasAuthority('VENDOR')")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Long id) {
         return productService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAuthority('VENDOR')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
@@ -54,6 +58,7 @@ public class ProductController {
         return ResponseEntity.ok(created);
     }
 
+    @PreAuthorize("hasAuthority('VENDOR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal String subject, @PathVariable Long id, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
@@ -71,6 +76,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(actorId, id, updated));
     }
 
+    @PreAuthorize("hasAuthority('VENDOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@AuthenticationPrincipal String subject, @PathVariable Long id) {
         Long actorId = Long.parseLong(subject);
