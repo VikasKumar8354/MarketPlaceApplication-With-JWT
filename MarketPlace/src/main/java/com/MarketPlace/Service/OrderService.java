@@ -28,19 +28,19 @@ public class OrderService {
         var buyer = userRepo.findById(buyerId).orElseThrow();
         double total = 0;
         List<OrderItem> savedItems = new ArrayList<>();
-        for (OrderItem it : items) {
-            var product = productRepo.findById(it.getProduct().getId()).orElseThrow();
-            if (product.getStock() < it.getQuantity()) throw new RuntimeException("Insufficient stock for " + product.getTitle());
-            product.setStock(product.getStock() - it.getQuantity());
+        for (OrderItem item : items) {
+            var product = productRepo.findById(item.getProduct().getId()).orElseThrow();
+            if (product.getStock() < item.getQuantity()) throw new RuntimeException("Insufficient stock for " + product.getTitle());
+            product.setStock(product.getStock() - item.getQuantity());
             productRepo.save(product);
 
             var copy = OrderItem.builder()
                     .product(product)
-                    .quantity(it.getQuantity())
+                    .quantity(item.getQuantity())
                     .price(product.getPrice())
                     .build();
             savedItems.add(copy);
-            total += product.getPrice() * it.getQuantity();
+            total += product.getPrice() * item.getQuantity();
         }
         Order order = Order.builder()
                 .buyer(buyer)
