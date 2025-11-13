@@ -95,6 +95,7 @@ public class UserAuthService {
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
+
         User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
         User vendor = userRepository.findById(vendorId).orElseThrow();
@@ -103,16 +104,4 @@ public class UserAuthService {
         return userRepository.save(vendor);
     }
 
-    // token helpers
-    public Long extractUserIdFromToken(String token) {
-        Jws<Claims> parsed = jwtUtil.parseToken(token);
-        String subject = parsed.getBody().getSubject();
-        return Long.parseLong(subject);
-    }
-
-    public String extractRoleFromToken(String token) {
-        Jws<Claims> parsed = jwtUtil.parseToken(token);
-        Object role = parsed.getBody().get("role");
-        return role != null ? role.toString() : null;
-    }
 }

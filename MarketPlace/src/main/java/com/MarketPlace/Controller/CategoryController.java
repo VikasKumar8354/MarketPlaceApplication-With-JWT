@@ -13,11 +13,15 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
-    public CategoryController(CategoryRepository categoryRepository) { this.categoryRepository = categoryRepository; }
+    public CategoryController(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
-    public List<Category> list() { return categoryRepository.findAll(); }
+    public List<Category> list() {
+        return categoryRepository.findAll();
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")

@@ -52,7 +52,9 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public List<Order> listAll() { return orderRepository.findAll(); }
+    public List<Order> listAll() {
+        return orderRepository.findAll();
+    }
 
     public List<Order> listByBuyer(Long buyerId) {
         var buyer = userRepository.findById(buyerId).orElseThrow();

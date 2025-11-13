@@ -16,15 +16,21 @@ public class UserController {
 
     private final UserAuthService userAuthService;
 
-    public UserController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
+    public UserController(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
-    public List<User> listAll() { return userAuthService.listAll(); }
+    public List<User> listAll() {
+        return userAuthService.listAll();
+    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/role/{role}")
-    public List<User> listByRole(@PathVariable Role role) { return userAuthService.findByRole(role); }
+    public List<User> listByRole(@PathVariable Role role) {
+        return userAuthService.findByRole(role);
+    }
 
     // actorId must be passed as authenticated user's id (subject). For convenience here: use AuthenticationPrincipal
     @PreAuthorize("hasRole('ADMIN')")

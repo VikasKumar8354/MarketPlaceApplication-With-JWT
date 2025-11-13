@@ -18,7 +18,9 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-    public OrderController(OrderService orderService) { this.orderService = orderService; }
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
 //    @PreAuthorize("hasRole('USER')")
     @PostMapping("/create")
@@ -38,7 +40,9 @@ public class OrderController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/list")
-    public List<Order> listAll() { return orderService.listAll(); }
+    public List<Order> listAll() {
+        return orderService.listAll();
+    }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/buyer")

@@ -46,6 +46,7 @@ public class ProductService {
     }
 
     public Product updateProduct(Long actorId, Long productId, Product updated) {
+
         var actor = userRepository.findById(actorId).orElseThrow();
         var existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))
@@ -61,6 +62,7 @@ public class ProductService {
     }
 
     public void deleteProduct(Long actorId, Long productId) {
+
         var actor = userRepository.findById(actorId).orElseThrow();
         var existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))

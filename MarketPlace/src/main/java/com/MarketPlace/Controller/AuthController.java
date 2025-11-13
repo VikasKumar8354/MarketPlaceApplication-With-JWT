@@ -17,7 +17,9 @@ public class AuthController {
 
     private final UserAuthService userAuthService;
 
-    public AuthController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
+    public AuthController(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody CreateUserDto dto) {
