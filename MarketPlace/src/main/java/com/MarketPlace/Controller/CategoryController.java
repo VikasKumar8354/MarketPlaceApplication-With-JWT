@@ -21,7 +21,7 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody Category c) {
-        return ResponseEntity.ok(categoryRepository.save(c));
+    public ResponseEntity<?> create(@RequestBody Category category) {
+        return ResponseEntity.ok(categoryRepository.save(category));
     }
 }

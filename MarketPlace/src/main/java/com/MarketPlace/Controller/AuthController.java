@@ -26,9 +26,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest req) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
-            String token = userAuthService.login(req.getEmail(), req.getPassword());
+            String token = userAuthService.login(authRequest.getEmail(), authRequest.getPassword());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception ex) {
             return ResponseEntity.status(401).body("Invalid credentials");
