@@ -15,11 +15,11 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
     public CategoryController(CategoryRepository categoryRepository) { this.categoryRepository = categoryRepository; }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     public List<Category> list() { return categoryRepository.findAll(); }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody Category category) {
         return ResponseEntity.ok(categoryRepository.save(category));

@@ -20,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
     public OrderController(OrderService orderService) { this.orderService = orderService; }
 
-    @PreAuthorize("hasAuthority('USER')")
+//    @PreAuthorize("hasRole('USER')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody OrderDto orderDto) {
         Long buyerId = Long.parseLong(subject);
@@ -36,11 +36,11 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/list")
     public List<Order> listAll() { return orderService.listAll(); }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/buyer")
     public List<Order> listByBuyer(@AuthenticationPrincipal String subject) {
         Long buyerId = Long.parseLong(subject);

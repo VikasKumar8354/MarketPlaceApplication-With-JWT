@@ -27,20 +27,20 @@ public class ProductController {
         this.userAuthService = userAuthService;
     }
 
-    @PreAuthorize("hasAuthority('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR')")
     @GetMapping("/list")
     public Page<Product> list(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size) {
         return productService.listAll(PageRequest.of(page, size));
     }
 
-    @PreAuthorize("hasAuthority('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR')")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Long id) {
         return productService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAuthority('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
@@ -58,7 +58,7 @@ public class ProductController {
         return ResponseEntity.ok(created);
     }
 
-    @PreAuthorize("hasAuthority('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal String subject, @PathVariable Long id, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
@@ -76,7 +76,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(actorId, id, updated));
     }
 
-    @PreAuthorize("hasAuthority('VENDOR')")
+    @PreAuthorize("hasRole('VENDOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@AuthenticationPrincipal String subject, @PathVariable Long id) {
         Long actorId = Long.parseLong(subject);
@@ -84,6 +84,7 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('VENDOR')")
     @GetMapping("/vendor/{vendorId}")
     public Page<Product> byVendor(@PathVariable Long vendorId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return productService.findByVendor(vendorId, PageRequest.of(page, size));

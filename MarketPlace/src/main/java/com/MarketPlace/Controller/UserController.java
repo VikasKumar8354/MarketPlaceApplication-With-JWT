@@ -4,6 +4,7 @@ import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
 import com.MarketPlace.Service.UserAuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +18,16 @@ public class UserController {
 
     public UserController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     public List<User> listAll() { return userAuthService.listAll(); }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/role/{role}")
     public List<User> listByRole(@PathVariable Role role) { return userAuthService.findByRole(role); }
 
     // actorId must be passed as authenticated user's id (subject). For convenience here: use AuthenticationPrincipal
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/assign-vendor")
     public ResponseEntity<?> assignVendor(@AuthenticationPrincipal String subject, @PathVariable Long id,
                                           @RequestParam String shopName) {
@@ -32,6 +36,7 @@ public class UserController {
         return ResponseEntity.ok(vendor);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/verify-vendor")
     public ResponseEntity<?> verifyVendor(@AuthenticationPrincipal String subject, @PathVariable Long id) {
         Long actorId = Long.parseLong(subject);
