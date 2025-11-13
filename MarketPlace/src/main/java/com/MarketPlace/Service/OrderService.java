@@ -14,25 +14,25 @@ import java.util.List;
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepo;
-    private final ProductRepository productRepo;
-    private final UserRepository userRepo;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepo, ProductRepository productRepo, UserRepository userRepo) {
-        this.orderRepo = orderRepo;
-        this.productRepo = productRepo;
-        this.userRepo = userRepo;
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     public Order createOrder(Long buyerId, List<OrderItem> items) {
-        var buyer = userRepo.findById(buyerId).orElseThrow();
+        var buyer = userRepository.findById(buyerId).orElseThrow();
         double total = 0;
         List<OrderItem> savedItems = new ArrayList<>();
         for (OrderItem item : items) {
-            var product = productRepo.findById(item.getProduct().getId()).orElseThrow();
+            var product = productRepository.findById(item.getProduct().getId()).orElseThrow();
             if (product.getStock() < item.getQuantity()) throw new RuntimeException("Insufficient stock for " + product.getTitle());
             product.setStock(product.getStock() - item.getQuantity());
-            productRepo.save(product);
+            productRepository.save(product);
 
             var copy = OrderItem.builder()
                     .product(product)
@@ -49,13 +49,13 @@ public class OrderService {
                 .status("CREATED")
                 .createdAt(Instant.now())
                 .build();
-        return orderRepo.save(order);
+        return orderRepository.save(order);
     }
 
-    public List<Order> listAll() { return orderRepo.findAll(); }
+    public List<Order> listAll() { return orderRepository.findAll(); }
 
     public List<Order> listByBuyer(Long buyerId) {
-        var buyer = userRepo.findById(buyerId).orElseThrow();
-        return orderRepo.findByBuyer(buyer);
+        var buyer = userRepository.findById(buyerId).orElseThrow();
+        return orderRepository.findByBuyer(buyer);
     }
 }

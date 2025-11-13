@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private final ProductService productService;
-    private final CategoryRepository categoryRepo;
+    private final CategoryRepository categoryRepository;
     private final UserAuthService userAuthService;
 
-    public ProductController(ProductService productService, CategoryRepository categoryRepo, UserAuthService userAuthService) {
+    public ProductController(ProductService productService, CategoryRepository categoryRepository, UserAuthService userAuthService) {
         this.productService = productService;
-        this.categoryRepo = categoryRepo;
+        this.categoryRepository = categoryRepository;
         this.userAuthService = userAuthService;
     }
 
@@ -44,17 +44,17 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
-        Category cat = null;
-        if (dto.getCategoryId() != null) cat = categoryRepo.findById(dto.getCategoryId()).orElse(null);
-        Product p = Product.builder()
+        Category category = null;
+        if (dto.getCategoryId() != null) category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
+        Product product = Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .stock(dto.getStock())
                 .imageUrl(dto.getImageUrl())
-                .category(cat)
+                .category(category)
                 .build();
-        Product created = productService.createProduct(actorId, p);
+        Product created = productService.createProduct(actorId, product);
         return ResponseEntity.ok(created);
     }
 
@@ -70,8 +70,8 @@ public class ProductController {
                 .imageUrl(dto.getImageUrl())
                 .build();
         if (dto.getCategoryId() != null) {
-            Category cat = categoryRepo.findById(dto.getCategoryId()).orElse(null);
-            updated.setCategory(cat);
+            Category category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
+            updated.setCategory(category);
         }
         return ResponseEntity.ok(productService.updateProduct(actorId, id, updated));
     }

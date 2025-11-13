@@ -8,7 +8,6 @@ import com.MarketPlace.SecurityConfiguration.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,24 +19,24 @@ import java.util.Optional;
 @Service
 public class UserAuthService {
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserAuthService(UserRepository userRepo, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepo = userRepo;
+    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
     // register (role optional)
     public User register(CreateUserDto dto) {
-        if (userRepo.findByEmail(dto.getEmail()).isPresent())
+        if (userRepository.findByEmail(dto.getEmail()).isPresent())
             throw new RuntimeException("Email already used");
 
         Role role = dto.getRole() != null ? dto.getRole() : Role.USER;
 
-        User u = User.builder()
+        User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -46,62 +45,62 @@ public class UserAuthService {
                 .vendorVerified(false)
                 .build();
 
-        return userRepo.save(u);
+        return userRepository.save(user);
     }
 
     // login -> returns token
     public String login(String email, String rawPassword) {
-        User u = userRepo.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        if (!passwordEncoder.matches(rawPassword, u.getPassword())) throw new BadCredentialsException("Invalid credentials");
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) throw new BadCredentialsException("Invalid credentials");
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", u.getRole().name());
-        claims.put("email", u.getEmail());
-        return jwtUtil.generateToken(String.valueOf(u.getId()), claims);
+        claims.put("role", user.getRole().name());
+        claims.put("email", user.getEmail());
+        return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
     }
 
     public Optional<User> findById(Long id) {
-        return userRepo.findById(id);
+        return userRepository.findById(id);
     }
 
     public Optional<User> findByEmail(String email) {
-        return userRepo.findByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     public List<User> listAll() {
-        return userRepo.findAll();
+        return userRepository.findAll();
     }
 
     public List<User> findByRole(Role role) {
-        return userRepo.findByRole(role);
+        return userRepository.findByRole(role);
     }
 
     // admin actions
     public User promoteToAdmin(Long actorId, Long targetId) {
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can promote (in this simplified model)");
-        User target = userRepo.findById(targetId).orElseThrow();
+        User target = userRepository.findById(targetId).orElseThrow();
         target.setRole(Role.ADMIN);
-        return userRepo.save(target);
+        return userRepository.save(target);
     }
 
     public User assignVendor(Long actorId, Long targetId, String shopName) {
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can assign vendor");
-        User target = userRepo.findById(targetId).orElseThrow();
+        User target = userRepository.findById(targetId).orElseThrow();
         target.setRole(Role.VENDOR);
         target.setShopName(shopName);
         target.setVendorVerified(false);
-        return userRepo.save(target);
+        return userRepository.save(target);
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
-        User vendor = userRepo.findById(vendorId).orElseThrow();
+        User vendor = userRepository.findById(vendorId).orElseThrow();
         if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Target is not a vendor");
         vendor.setVendorVerified(true);
-        return userRepo.save(vendor);
+        return userRepository.save(vendor);
     }
 
     // token helpers

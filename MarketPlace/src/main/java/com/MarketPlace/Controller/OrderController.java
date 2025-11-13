@@ -26,9 +26,9 @@ public class OrderController {
         Long buyerId = Long.parseLong(subject);
 
         List<OrderItem> items = orderDto.getItems().stream()
-                .map(i -> OrderItem.builder()
-                        .product(Product.builder().id(i.productId()).build())
-                        .quantity(i.quantity())
+                .map(item -> OrderItem.builder()
+                        .product(Product.builder().id(item.productId()).build())
+                        .quantity(item.quantity())
                         .build())
                 .collect(Collectors.toList());
 
