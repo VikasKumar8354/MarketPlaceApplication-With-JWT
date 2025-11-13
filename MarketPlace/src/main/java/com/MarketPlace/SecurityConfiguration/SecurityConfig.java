@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()) // for H2 console
+                        .frameOptions(frame -> frame.sameOrigin())
                 );
 
         return http.build();
