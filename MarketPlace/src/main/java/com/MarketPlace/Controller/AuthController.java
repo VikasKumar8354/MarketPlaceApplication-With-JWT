@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserAuthService userService;
-    public AuthController(UserAuthService userService) { this.userService = userService; }
+    private final UserAuthService userAuthService;
+    public AuthController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody CreateUserDto dto) {
-        User u = userService.register(dto);
-        return ResponseEntity.ok(u);
+        User user = userAuthService.register(dto);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest req) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
-            String token = userService.login(req.getEmail(), req.getPassword());
+            String token = userAuthService.login(authRequest.getEmail(), authRequest.getPassword());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception ex) {
             return ResponseEntity.status(401).body("Invalid credentials");

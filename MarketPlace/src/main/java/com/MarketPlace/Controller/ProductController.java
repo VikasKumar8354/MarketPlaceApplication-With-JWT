@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     private final ProductService productService;
-    private final CategoryRepository categoryRepo;
+    private final CategoryRepository categoryRepository;
 
-    public ProductController(ProductService productService, CategoryRepository categoryRepo) {
-        this.productService = productService; this.categoryRepo = categoryRepo;
+    public ProductController(ProductService productService, CategoryRepository categoryRepository) {
+        this.productService = productService; this.categoryRepository = categoryRepository;
     }
 
     @GetMapping
@@ -37,15 +37,15 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('VENDOR','ADMIN')")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);
-        Category cat = null;
-        if (dto.getCategoryId() != null) cat = categoryRepo.findById(dto.getCategoryId()).orElse(null);
+        Category category = null;
+        if (dto.getCategoryId() != null) category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
         Product p = Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .stock(dto.getStock())
                 .imageUrl(dto.getImageUrl())
-                .category(cat)
+                .category(category)
                 .build();
         Product created = productService.createProduct(actorId, p);
         return ResponseEntity.ok(created);
@@ -62,7 +62,7 @@ public class ProductController {
                 .stock(dto.getStock())
                 .imageUrl(dto.getImageUrl())
                 .build();
-        if (dto.getCategoryId() != null) updated.setCategory(categoryRepo.findById(dto.getCategoryId()).orElse(null));
+        if (dto.getCategoryId() != null) updated.setCategory(categoryRepository.findById(dto.getCategoryId()).orElse(null));
         return ResponseEntity.ok(productService.updateProduct(actorId, id, updated));
     }
 

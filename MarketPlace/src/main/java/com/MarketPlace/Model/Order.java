@@ -21,7 +21,8 @@ public class Order {
     @ManyToOne
     private User buyer;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
     private List<OrderItem> items;
 
     private Double total;

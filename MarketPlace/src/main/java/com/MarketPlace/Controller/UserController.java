@@ -15,38 +15,38 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserAuthService userService;
-    public UserController(UserAuthService userService) { this.userService = userService; }
+    private final UserAuthService userAuthService;
+    public UserController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> listAll() { return userService.listAll(); }
+    public List<User> listAll() { return userAuthService.listAll(); }
 
     @GetMapping("/role/{role}")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> byRole(@PathVariable Role role) { return userService.findByRole(role); }
+    public List<User> byRole(@PathVariable Role role) { return userAuthService.findByRole(role); }
 
     @PostMapping("/address")
     @PreAuthorize("hasAnyRole('USER','VENDOR','ADMIN')")
     public ResponseEntity<?> addAddress(@AuthenticationPrincipal String subject, @RequestBody Address address) {
         Long userId = Long.parseLong(subject);
-        User u = userService.addAddress(userId, address);
-        return ResponseEntity.ok(u);
+        User user = userAuthService.addAddress(userId, address);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/{id}/assign-vendor")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> assignVendor(@PathVariable Long id, @RequestParam String shopName, @AuthenticationPrincipal String subject) {
         Long actorId = Long.parseLong(subject);
-        User u = userService.assignVendor(actorId, id, shopName);
-        return ResponseEntity.ok(u);
+        User user = userAuthService.assignVendor(actorId, id, shopName);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/{id}/verify-vendor")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> verifyVendor(@PathVariable Long id, @AuthenticationPrincipal String subject) {
         Long actorId = Long.parseLong(subject);
-        User u = userService.verifyVendor(actorId, id);
-        return ResponseEntity.ok(u);
+        User user = userAuthService.verifyVendor(actorId, id);
+        return ResponseEntity.ok(user);
     }
 }

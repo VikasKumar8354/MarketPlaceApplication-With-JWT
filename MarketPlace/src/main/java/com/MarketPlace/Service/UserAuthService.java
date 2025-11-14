@@ -80,6 +80,7 @@ public class UserAuthService {
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
+
         User actor = userRepo.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
         User vendor = userRepo.findById(vendorId).orElseThrow();

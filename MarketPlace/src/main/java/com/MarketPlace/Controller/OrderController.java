@@ -22,11 +22,11 @@ public class OrderController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
         Long buyerId = Long.parseLong(subject);
-        List<OrderItem> items = dto.getItems().stream().map(i ->
-                OrderItem.builder().product(Product.builder().id(i.productId()).build()).quantity(i.quantity()).build()
+        List<OrderItem> items = dto.getItems().stream().map(item ->
+                OrderItem.builder().product(Product.builder().id(item.productId()).build()).quantity(item.quantity()).build()
         ).collect(Collectors.toList());
 
-        Address addr = Address.builder()
+        Address address = Address.builder()
                 .label(dto.getAddressLabel())
                 .line1(dto.getLine1())
                 .line2(dto.getLine2())
@@ -38,7 +38,7 @@ public class OrderController {
                 .build();
 
         PaymentInfo.Method method = PaymentInfo.Method.valueOf(dto.getPaymentMethod());
-        Order order = orderService.createOrder(buyerId, items, addr, method, dto.getPaymentDetails());
+        Order order = orderService.createOrder(buyerId, items, address, method, dto.getPaymentDetails());
         return ResponseEntity.ok(order);
     }
 
@@ -46,7 +46,7 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
     public List<Order> listAll() { return orderService.listAll(); }
 
-    @GetMapping("/me")
+    @GetMapping("/my")
     @PreAuthorize("hasRole('USER')")
     public List<Order> myOrders(@AuthenticationPrincipal String subject) {
         Long buyerId = Long.parseLong(subject);
@@ -57,8 +57,8 @@ public class OrderController {
     @PostMapping("/{orderId}/payment")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<?> updatePayment(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required=false) String txId) {
-        PaymentInfo.Status s = PaymentInfo.Status.valueOf(status);
-        PaymentInfo updated = orderService.updatePayment(orderId, s, txId);
+        PaymentInfo.Status sts = PaymentInfo.Status.valueOf(status);
+        PaymentInfo updated = orderService.updatePayment(orderId, sts, txId);
         return ResponseEntity.ok(updated);
     }
 }
