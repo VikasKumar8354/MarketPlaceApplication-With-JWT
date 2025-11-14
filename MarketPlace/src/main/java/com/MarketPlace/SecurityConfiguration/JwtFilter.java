@@ -22,35 +22,34 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    public JwtFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+    public JwtFilter(JwtUtil jwtUtil) { this.jwtUtil = jwtUtil; }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        String token = header.substring(7);
-        try {
-            Jws<Claims> parsed = jwtUtil.parseToken(token);
-            Claims claims = parsed.getBody();
-            String subject = claims.getSubject(); // userId
-            Object roleObj = claims.get("role");
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            if (roleObj != null) {
-                authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleObj.toString()));
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            try {
+                Jws<Claims> parsed = jwtUtil.parseToken(token);
+                Claims claims = parsed.getBody();
+                String subject = claims.getSubject(); // userId
+                Object roleObj = claims.get("role");
+
+                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                if (roleObj != null) {
+                    String r = roleObj.toString();
+                    authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + r));
+                }
+
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(subject, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
+            } catch (Exception ex) {
+                SecurityContextHolder.clearContext();
             }
-            // Set principal = subject (userId as string)
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(subject, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        } catch (Exception ex) {
-            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }

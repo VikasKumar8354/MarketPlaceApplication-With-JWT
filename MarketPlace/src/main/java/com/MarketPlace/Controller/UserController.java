@@ -1,5 +1,6 @@
 package com.MarketPlace.Controller;
 
+import com.MarketPlace.Model.Address;
 import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
 import com.MarketPlace.Service.UserAuthService;
@@ -14,38 +15,38 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserAuthService userAuthService;
+    private final UserAuthService userService;
+    public UserController(UserAuthService userService) { this.userService = userService; }
 
-    public UserController(UserAuthService userAuthService) {
-        this.userAuthService = userAuthService;
-    }
-
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/list")
-    public List<User> listAll() {
-        return userAuthService.listAll();
-    }
+    public List<User> listAll() { return userService.listAll(); }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/role/{role}")
-    public List<User> listByRole(@PathVariable Role role) {
-        return userAuthService.findByRole(role);
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<User> byRole(@PathVariable Role role) { return userService.findByRole(role); }
+
+    @PostMapping("/address")
+    @PreAuthorize("hasAnyRole('USER','VENDOR','ADMIN')")
+    public ResponseEntity<?> addAddress(@AuthenticationPrincipal String subject, @RequestBody Address address) {
+        Long userId = Long.parseLong(subject);
+        User u = userService.addAddress(userId, address);
+        return ResponseEntity.ok(u);
     }
 
-    // actorId must be passed as authenticated user's id (subject). For convenience here: use AuthenticationPrincipal
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/assign-vendor")
-    public ResponseEntity<?> assignVendor(@AuthenticationPrincipal String subject, @PathVariable Long id,
-                                          @RequestParam String shopName) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> assignVendor(@PathVariable Long id, @RequestParam String shopName, @AuthenticationPrincipal String subject) {
         Long actorId = Long.parseLong(subject);
-        User vendor = userAuthService.assignVendor(actorId, id, shopName);
-        return ResponseEntity.ok(vendor);
+        User u = userService.assignVendor(actorId, id, shopName);
+        return ResponseEntity.ok(u);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{id}/verify-vendor")
-    public ResponseEntity<?> verifyVendor(@AuthenticationPrincipal String subject, @PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> verifyVendor(@PathVariable Long id, @AuthenticationPrincipal String subject) {
         Long actorId = Long.parseLong(subject);
-        return ResponseEntity.ok(userAuthService.verifyVendor(actorId, id));
+        User u = userService.verifyVendor(actorId, id);
+        return ResponseEntity.ok(u);
     }
 }

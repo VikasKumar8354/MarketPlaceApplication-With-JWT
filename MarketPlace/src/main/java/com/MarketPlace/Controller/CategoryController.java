@@ -12,20 +12,15 @@ import java.util.List;
 @RequestMapping("/api/categories")
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    private final CategoryRepository repo;
+    public CategoryController(CategoryRepository repo) { this.repo = repo; }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/list")
-    public List<Category> list() {
-        return categoryRepository.findAll();
-    }
+    @GetMapping
+    public List<Category> list() { return repo.findAll(); }
 
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody Category category) {
-        return ResponseEntity.ok(categoryRepository.save(category));
+    public ResponseEntity<?> create(@RequestBody Category c) {
+        return ResponseEntity.ok(repo.save(c));
     }
 }

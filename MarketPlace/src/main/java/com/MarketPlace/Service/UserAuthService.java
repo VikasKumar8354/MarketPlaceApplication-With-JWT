@@ -1,37 +1,38 @@
 package com.MarketPlace.Service;
 
 import com.MarketPlace.DTOs.CreateUserDto;
+import com.MarketPlace.Model.Address;
 import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
+import com.MarketPlace.Repository.AddressRepository;
 import com.MarketPlace.Repository.UserRepository;
 import com.MarketPlace.SecurityConfiguration.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserAuthService {
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepo;
+    private final AddressRepository addressRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserAuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
+    public UserAuthService(UserRepository userRepo, AddressRepository addressRepo, PasswordEncoder passwordEncoder , JwtUtil jwtUtil) {
+        this.userRepo = userRepo;
+        this.addressRepo = addressRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
-    // register (role optional)
     public User register(CreateUserDto dto) {
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
+        if (userRepo.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
         User u = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
@@ -40,54 +41,61 @@ public class UserAuthService {
                 .shopName(dto.getShopName())
                 .vendorVerified(false)
                 .build();
-        return userRepository.save(u);
+        if (dto.getRole() == Role.USER) u.setVendorVerified(false);
+        return userRepo.save(u);
     }
 
     public String login(String email, String rawPassword) {
-        User u = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+        User u = userRepo.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         if (!passwordEncoder.matches(rawPassword, u.getPassword())) throw new BadCredentialsException("Invalid credentials");
-
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", u.getRole().name());
         claims.put("email", u.getEmail());
         return jwtUtil.generateToken(String.valueOf(u.getId()), claims);
     }
 
-    public Optional<User> findById(Long id) { return userRepository.findById(id); }
-    public Optional<User> findByEmail(String email) { return userRepository.findByEmail(email); }
-    public List<User> listAll() { return userRepository.findAll(); }
-    public List<User> findByRole(Role role) { return userRepository.findByRole(role); }
+    public Optional<User> findById(Long id) { return userRepo.findById(id); }
+    public Optional<User> findByEmail(String email) { return userRepo.findByEmail(email); }
+    public List<User> listAll() { return userRepo.findAll(); }
+    public List<User> findByRole(Role role) { return userRepo.findByRole(role); }
 
-    // admin actions (ADMIN role required at service/controller level)
+    public User addAddress(Long userId, Address address) {
+        User u = userRepo.findById(userId).orElseThrow();
+        Address saved = addressRepo.save(address);
+        var list = u.getAddresses();
+        if (list == null) list = new ArrayList<>();
+        list.add(saved);
+        u.setAddresses(list);
+        return userRepo.save(u);
+    }
+
     public User assignVendor(Long actorId, Long targetId, String shopName) {
-        User actor = userRepository.findById(actorId).orElseThrow();
+        User actor = userRepo.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can assign vendor");
-        User target = userRepository.findById(targetId).orElseThrow();
+        User target = userRepo.findById(targetId).orElseThrow();
         target.setRole(Role.VENDOR);
         target.setShopName(shopName);
         target.setVendorVerified(false);
-        return userRepository.save(target);
+        return userRepo.save(target);
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
-        User actor = userRepository.findById(actorId).orElseThrow();
+        User actor = userRepo.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
-        User vendor = userRepository.findById(vendorId).orElseThrow();
+        User vendor = userRepo.findById(vendorId).orElseThrow();
         if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Not a vendor");
         vendor.setVendorVerified(true);
-        return userRepository.save(vendor);
+        return userRepo.save(vendor);
     }
 
-    // Token helpers
     public Long extractUserIdFromToken(String token) {
         Jws<Claims> parsed = jwtUtil.parseToken(token);
-        String subject = parsed.getBody().getSubject();
-        return Long.parseLong(subject);
-    }
-    public String extractRoleFromToken(String token) {
-        Jws<Claims> parsed = jwtUtil.parseToken(token);
-        Object r = parsed.getBody().get("role");
-        return r != null ? r.toString() : null;
+        return Long.parseLong(parsed.getBody().getSubject());
     }
 
+    public String extractRoleFromToken(String token) {
+        Jws<Claims> parsed = jwtUtil.parseToken(token);
+        Object role = parsed.getBody().get("role");
+        return role != null ? role.toString() : null;
+    }
 }

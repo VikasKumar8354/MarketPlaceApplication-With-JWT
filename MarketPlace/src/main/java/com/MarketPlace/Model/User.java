@@ -3,6 +3,8 @@ package com.MarketPlace.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -17,7 +19,7 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique=true, nullable=false)
     private String email;
 
     private String password;
@@ -25,8 +27,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // vendor fields
     private String shopName;
     private boolean vendorVerified;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses;
 }

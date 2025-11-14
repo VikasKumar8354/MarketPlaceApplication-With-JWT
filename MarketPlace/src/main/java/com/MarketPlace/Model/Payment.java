@@ -19,12 +19,6 @@ public class Payment {
 
     private String transactionId; // simulated tx id for online payments
 
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod method;
-
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
-
     private Double amount;
 
     private Instant paidAt;

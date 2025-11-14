@@ -1,10 +1,8 @@
 package com.MarketPlace.Controller;
 
 import com.MarketPlace.DTOs.OrderDto;
-import com.MarketPlace.DTOs.PaymentDto;
 import com.MarketPlace.Model.*;
 import com.MarketPlace.Service.OrderService;
-import com.MarketPlace.Service.UserAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,42 +16,49 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-    private final UserAuthService userAuthService;
-
-    public OrderController(OrderService orderService, UserAuthService userAuthService) {
-        this.orderService = orderService;
-        this.userAuthService = userAuthService;
-    }
+    public OrderController(OrderService orderService) { this.orderService = orderService; }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
         Long buyerId = Long.parseLong(subject);
         List<OrderItem> items = dto.getItems().stream().map(i ->
                 OrderItem.builder().product(Product.builder().id(i.productId()).build()).quantity(i.quantity()).build()
         ).collect(Collectors.toList());
 
-        Payment payment = null;
-        if (dto.getPayment() != null) {
-            PaymentDto pd = dto.getPayment();
-            payment = Payment.builder()
-                    .method(pd.getMethod())
-                    .amount(pd.getAmount() != null ? pd.getAmount() : 0.0)
-                    .build();
-        } else {
-            // default COD
-            payment = Payment.builder().method(PaymentMethod.COD).build();
-        }
+        Address addr = Address.builder()
+                .label(dto.getAddressLabel())
+                .line1(dto.getLine1())
+                .line2(dto.getLine2())
+                .city(dto.getCity())
+                .state(dto.getState())
+                .postalCode(dto.getPostalCode())
+                .country(dto.getCountry())
+                .phone(dto.getPhone())
+                .build();
 
-        Order order = orderService.createOrder(buyerId, items, payment, dto.getExpectedDeliveryDays());
+        PaymentInfo.Method method = PaymentInfo.Method.valueOf(dto.getPaymentMethod());
+        Order order = orderService.createOrder(buyerId, items, addr, method, dto.getPaymentDetails());
         return ResponseEntity.ok(order);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
     public List<Order> listAll() { return orderService.listAll(); }
 
-    @GetMapping("/buyer")
-    public List<Order> listByBuyer(@AuthenticationPrincipal String subject) {
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public List<Order> myOrders(@AuthenticationPrincipal String subject) {
         Long buyerId = Long.parseLong(subject);
         return orderService.listByBuyer(buyerId);
+    }
+
+    // simulate payment callback/update (admin or buyer)
+    @PostMapping("/{orderId}/payment")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<?> updatePayment(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required=false) String txId) {
+        PaymentInfo.Status s = PaymentInfo.Status.valueOf(status);
+        PaymentInfo updated = orderService.updatePayment(orderId, s, txId);
+        return ResponseEntity.ok(updated);
     }
 }

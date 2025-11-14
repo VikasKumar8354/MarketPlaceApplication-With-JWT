@@ -24,13 +24,16 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private Payment payment;
-
     private Double total;
 
-    private String status; // CREATED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+    private String status; // CREATED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
 
-    private Instant placedAt; // order creation time
-    private Instant deliveryDate; // expected or actual delivery date
+    private Instant placedAt;
+    private Instant expectedDeliveryAt; // or placed/ship dates
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Address shippingAddress;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private PaymentInfo payment;
 }
