@@ -7,15 +7,14 @@ import lombok.Builder;
 @Builder
 public class OrderItem {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     private Product product;
 
     private Integer quantity;
-    private Double price;
+    private Double price; // snapshot price
 
     public OrderItem() {}
 

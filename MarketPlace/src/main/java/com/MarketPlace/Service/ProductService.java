@@ -24,29 +24,22 @@ public class ProductService {
         this.userRepository = userRepository;
     }
 
-    public Product createProduct(Long actorId, Product product) {
+    public Product createProduct(Long actorId, Product p) {
         var actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() == Role.USER) throw new RuntimeException("USER cannot create products");
         if (actor.getRole() == Role.VENDOR && !actor.isVendorVerified()) throw new RuntimeException("Vendor not verified");
-        if (actor.getRole() == Role.VENDOR) product.setVendor(actor);
-        return productRepository.save(product);
+        if (actor.getRole() == Role.VENDOR) p.setVendor(actor);
+        return productRepository.save(p);
     }
 
-    public Page<Product> listAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
-    }
-
-    public Optional<Product> findById(Long id) {
-        return productRepository.findById(id);
-    }
-
+    public Page<Product> listAll(Pageable pageable) { return productRepository.findAll(pageable); }
+    public Optional<Product> findById(Long id) { return productRepository.findById(id); }
     public Page<Product> findByVendor(Long vendorId, Pageable pageable) {
         var vendor = userRepository.findById(vendorId).orElseThrow();
         return productRepository.findByVendor(vendor, pageable);
     }
 
     public Product updateProduct(Long actorId, Long productId, Product updated) {
-
         var actor = userRepository.findById(actorId).orElseThrow();
         var existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))
@@ -62,7 +55,6 @@ public class ProductService {
     }
 
     public void deleteProduct(Long actorId, Long productId) {
-
         var actor = userRepository.findById(actorId).orElseThrow();
         var existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))

@@ -1,21 +1,18 @@
 package com.MarketPlace.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -28,8 +25,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    // vendor fields
     private String shopName;
-
     private boolean vendorVerified;
 
 }

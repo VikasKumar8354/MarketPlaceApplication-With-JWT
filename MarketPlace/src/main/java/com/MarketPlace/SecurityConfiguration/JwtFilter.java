@@ -39,12 +39,13 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             Jws<Claims> parsed = jwtUtil.parseToken(token);
             Claims claims = parsed.getBody();
-            String subject = claims.getSubject(); // we'll store userId as subject
+            String subject = claims.getSubject(); // userId
             Object roleObj = claims.get("role");
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
             if (roleObj != null) {
                 authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleObj.toString()));
             }
+            // Set principal = subject (userId as string)
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(subject, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);

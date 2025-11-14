@@ -1,18 +1,21 @@
 package com.MarketPlace.Model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -21,66 +24,13 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Payment payment;
+
     private Double total;
-    private String status;
-    private Instant createdAt;
 
-    public Order() {}
+    private String status; // CREATED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
 
-    public Order(Long id, User buyer, List<OrderItem> items, Double total, String status, Instant createdAt) {
-        this.id = id;
-        this.buyer = buyer;
-        this.items = items;
-        this.total = total;
-        this.status = status;
-        this.createdAt = createdAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getBuyer() {
-        return buyer;
-    }
-
-    public void setBuyer(User buyer) {
-        this.buyer = buyer;
-    }
-
-    public List<OrderItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<OrderItem> items) {
-        this.items = items;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+    private Instant placedAt; // order creation time
+    private Instant deliveryDate; // expected or actual delivery date
 }

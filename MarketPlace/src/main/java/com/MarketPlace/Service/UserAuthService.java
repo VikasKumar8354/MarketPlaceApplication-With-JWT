@@ -31,44 +31,34 @@ public class UserAuthService {
 
     // register (role optional)
     public User register(CreateUserDto dto) {
-        if (userRepository.findByEmail(dto.getEmail()).isPresent())
-            throw new RuntimeException("Email already used");
-
-        Role role = dto.getRole() != null ? dto.getRole() : Role.USER;
-
-        User user = User.builder()
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
+        User u = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
-                .role(role)
+                .role(dto.getRole() != null ? dto.getRole() : Role.USER)
                 .shopName(dto.getShopName())
                 .vendorVerified(false)
                 .build();
-
-        return userRepository.save(user);
+        return userRepository.save(u);
     }
 
-    // login -> returns token
     public String login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        if (!passwordEncoder.matches(rawPassword, user.getPassword())) throw new BadCredentialsException("Invalid credentials");
+        User u = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+        if (!passwordEncoder.matches(rawPassword, u.getPassword())) throw new BadCredentialsException("Invalid credentials");
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole().name());
-        claims.put("email", user.getEmail());
-        return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
+        claims.put("role", u.getRole().name());
+        claims.put("email", u.getEmail());
+        return jwtUtil.generateToken(String.valueOf(u.getId()), claims);
     }
 
-    public List<User> listAll() {
-        return userRepository.findAll();
-    }
+    public Optional<User> findById(Long id) { return userRepository.findById(id); }
+    public Optional<User> findByEmail(String email) { return userRepository.findByEmail(email); }
+    public List<User> listAll() { return userRepository.findAll(); }
+    public List<User> findByRole(Role role) { return userRepository.findByRole(role); }
 
-    public List<User> findByRole(Role role) {
-        return userRepository.findByRole(role);
-    }
-
-    // admin actions
-
+    // admin actions (ADMIN role required at service/controller level)
     public User assignVendor(Long actorId, Long targetId, String shopName) {
         User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can assign vendor");
@@ -80,13 +70,24 @@ public class UserAuthService {
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
-
         User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
         User vendor = userRepository.findById(vendorId).orElseThrow();
-        if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Target is not a vendor");
+        if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Not a vendor");
         vendor.setVendorVerified(true);
         return userRepository.save(vendor);
+    }
+
+    // Token helpers
+    public Long extractUserIdFromToken(String token) {
+        Jws<Claims> parsed = jwtUtil.parseToken(token);
+        String subject = parsed.getBody().getSubject();
+        return Long.parseLong(subject);
+    }
+    public String extractRoleFromToken(String token) {
+        Jws<Claims> parsed = jwtUtil.parseToken(token);
+        Object r = parsed.getBody().get("role");
+        return r != null ? r.toString() : null;
     }
 
 }
