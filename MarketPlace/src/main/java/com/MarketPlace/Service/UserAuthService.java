@@ -88,14 +88,4 @@ public class UserAuthService {
         return userRepo.save(vendor);
     }
 
-    public Long extractUserIdFromToken(String token) {
-        Jws<Claims> parsed = jwtUtil.parseToken(token);
-        return Long.parseLong(parsed.getBody().getSubject());
-    }
-
-    public String extractRoleFromToken(String token) {
-        Jws<Claims> parsed = jwtUtil.parseToken(token);
-        Object role = parsed.getBody().get("role");
-        return role != null ? role.toString() : null;
-    }
 }
