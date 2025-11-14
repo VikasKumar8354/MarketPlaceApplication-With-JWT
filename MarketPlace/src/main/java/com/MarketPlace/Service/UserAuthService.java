@@ -59,14 +59,6 @@ public class UserAuthService {
         return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
     }
 
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
     public List<User> listAll() {
         return userRepository.findAll();
     }
@@ -76,13 +68,6 @@ public class UserAuthService {
     }
 
     // admin actions
-    public User promoteToAdmin(Long actorId, Long targetId) {
-        User actor = userRepository.findById(actorId).orElseThrow();
-        if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can promote (in this simplified model)");
-        User target = userRepository.findById(targetId).orElseThrow();
-        target.setRole(Role.ADMIN);
-        return userRepository.save(target);
-    }
 
     public User assignVendor(Long actorId, Long targetId, String shopName) {
         User actor = userRepository.findById(actorId).orElseThrow();
