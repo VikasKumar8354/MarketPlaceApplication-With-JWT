@@ -35,6 +35,6 @@ public class Order {
     @ManyToOne(cascade = CascadeType.ALL)
     private Address shippingAddress;
 
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL)
     private PaymentInfo payment;
 }
