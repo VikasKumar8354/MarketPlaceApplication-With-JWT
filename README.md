@@ -27,6 +27,7 @@ Authorization: Bearer <token>
 
 
 Examples:
+
 - GET /api/products
 - POST /api/products (requires VENDOR or ADMIN) with header Authorization
 - POST /api/orders (authenticated USER) with header Authorization and body:
