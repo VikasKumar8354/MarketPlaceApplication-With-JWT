@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserAuthService userAuthService;
-    public AuthController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
+    public AuthController(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody CreateUserDto dto) {
