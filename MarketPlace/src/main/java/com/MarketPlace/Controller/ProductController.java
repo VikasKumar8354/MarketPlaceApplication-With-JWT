@@ -35,7 +35,7 @@ public class ProductController {
         return productService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @PreAuthorize("hasAnyRole('VENDOR','ADMIN')")
     public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody CreateProductDto dto) {
         Long actorId = Long.parseLong(subject);

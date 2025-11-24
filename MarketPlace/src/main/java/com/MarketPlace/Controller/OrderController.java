@@ -20,7 +20,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/order")
+    @PostMapping("/createOrder")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrder(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
         Long buyerId = Long.parseLong(subject);

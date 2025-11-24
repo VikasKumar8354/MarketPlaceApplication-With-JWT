@@ -18,7 +18,7 @@ public class UserController {
     private final UserAuthService userAuthService;
     public UserController(UserAuthService userAuthService) { this.userAuthService = userAuthService; }
 
-    @GetMapping
+    @GetMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> listAll() { return userAuthService.listAll(); }
 

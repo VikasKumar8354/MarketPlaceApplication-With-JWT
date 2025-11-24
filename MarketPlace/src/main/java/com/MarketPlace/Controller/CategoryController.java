@@ -23,7 +23,7 @@ public class CategoryController {
         return categoryRepository.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody Category category) {
         return ResponseEntity.ok(categoryRepository.save(category));
