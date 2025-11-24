@@ -11,13 +11,15 @@ import java.util.Collections;
 
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepo;
-    public CustomUserDetailsService(UserRepository userRepo) { this.userRepo = userRepo; }
+    private final UserRepository userRepository;
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User u = userRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + u.getRole().name());
-        return new org.springframework.security.core.userdetails.User(u.getEmail(), u.getPassword(), Collections.singleton(authority));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.singleton(authority));
     }
 }

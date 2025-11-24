@@ -31,6 +31,6 @@ public class User {
     private boolean vendorVerified;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "buyer_id")
     private List<Address> addresses;
 }

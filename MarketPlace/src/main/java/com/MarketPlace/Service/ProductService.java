@@ -15,32 +15,32 @@ import java.util.Optional;
 @Service
 public class ProductService {
 
-    private final ProductRepository prodRepo;
-    private final CategoryRepository catRepo;
-    private final UserRepository userRepo;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
-    public ProductService(ProductRepository prodRepo, CategoryRepository catRepo, UserRepository userRepo) {
-        this.prodRepo = prodRepo; this.catRepo = catRepo; this.userRepo = userRepo;
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, UserRepository userRepository) {
+        this.productRepository = productRepository; this.categoryRepository = categoryRepository; this.userRepository = userRepository;
     }
 
     public Product createProduct(Long actorId, Product p) {
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() == Role.USER) throw new RuntimeException("USER cannot create products");
         if (actor.getRole() == Role.VENDOR && !actor.isVendorVerified()) throw new RuntimeException("Vendor not verified");
         if (actor.getRole() == Role.VENDOR) p.setVendor(actor);
-        return prodRepo.save(p);
+        return productRepository.save(p);
     }
 
-    public Page<Product> listAll(Pageable page) { return prodRepo.findAll(page); }
-    public Optional<Product> findById(Long id) { return prodRepo.findById(id); }
+    public Page<Product> listAll(Pageable page) { return productRepository.findAll(page); }
+    public Optional<Product> findById(Long id) { return productRepository.findById(id); }
     public Page<Product> findByVendor(Long vendorId, Pageable page) {
-        User vendor = userRepo.findById(vendorId).orElseThrow();
-        return prodRepo.findByVendor(vendor, page);
+        User vendor = userRepository.findById(vendorId).orElseThrow();
+        return productRepository.findByVendor(vendor, page);
     }
 
     public Product updateProduct(Long actorId, Long productId, Product updated) {
-        User actor = userRepo.findById(actorId).orElseThrow();
-        Product existing = prodRepo.findById(productId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
+        Product existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))
             throw new RuntimeException("Vendor can only update own products");
         if (actor.getRole() == Role.USER) throw new RuntimeException("Not authorized");
@@ -48,15 +48,15 @@ public class ProductService {
         existing.setPrice(updated.getPrice()); existing.setStock(updated.getStock());
         existing.setImageUrl(updated.getImageUrl());
         if (updated.getCategory() != null) existing.setCategory(updated.getCategory());
-        return prodRepo.save(existing);
+        return productRepository.save(existing);
     }
 
     public void deleteProduct(Long actorId, Long productId) {
-        User actor = userRepo.findById(actorId).orElseThrow();
-        Product existing = prodRepo.findById(productId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
+        Product existing = productRepository.findById(productId).orElseThrow();
         if (actor.getRole() == Role.VENDOR && !existing.getVendor().getId().equals(actor.getId()))
             throw new RuntimeException("Vendor can only delete own products");
         if (actor.getRole() == Role.USER) throw new RuntimeException("Not authorized");
-        prodRepo.deleteById(productId);
+        productRepository.deleteById(productId);
     }
 }

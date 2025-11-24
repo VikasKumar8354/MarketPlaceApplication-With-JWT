@@ -14,27 +14,27 @@ import java.util.UUID;
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepo;
-    private final ProductRepository productRepo;
-    private final UserRepository userRepo;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepo, ProductRepository productRepo, UserRepository userRepo) {
-        this.orderRepo = orderRepo; this.productRepo = productRepo; this.userRepo = userRepo;
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
+        this.orderRepository = orderRepository; this.productRepository = productRepository; this.userRepository = userRepository;
     }
 
     // create order with shipping address & payment
     public Order createOrder(Long buyerId, List<OrderItem> items, Address shippingAddress, PaymentInfo.Method method, String paymentDetails) {
-        User buyer = userRepo.findById(buyerId).orElseThrow();
+        User buyer = userRepository.findById(buyerId).orElseThrow();
         double total = 0;
         List<OrderItem> persisted = new ArrayList<>();
-        for (OrderItem it : items) {
-            Product p = productRepo.findById(it.getProduct().getId()).orElseThrow();
-            if (p.getStock() < it.getQuantity()) throw new RuntimeException("Insufficient stock for " + p.getTitle());
-            p.setStock(p.getStock() - it.getQuantity());
-            productRepo.save(p);
-            OrderItem copy = OrderItem.builder().product(p).quantity(it.getQuantity()).price(p.getPrice()).build();
+        for (OrderItem item : items) {
+            Product product = productRepository.findById(item.getProduct().getId()).orElseThrow();
+            if (product.getStock() < item.getQuantity()) throw new RuntimeException("Insufficient stock for " + product.getTitle());
+            product.setStock(product.getStock() - item.getQuantity());
+            productRepository.save(product);
+            OrderItem copy = OrderItem.builder().product(product).quantity(item.getQuantity()).price(product.getPrice()).build();
             persisted.add(copy);
-            total += p.getPrice() * it.getQuantity();
+            total += product.getPrice() * item.getQuantity();
         }
 
         PaymentInfo pay = PaymentInfo.builder()
@@ -59,25 +59,27 @@ public class OrderService {
                 .payment(pay)
                 .build();
 
-        return orderRepo.save(order);
+        return orderRepository.save(order);
     }
 
-    public List<Order> listAll() { return orderRepo.findAll(); }
+    public List<Order> listAll() {
+        return orderRepository.findAll();
+    }
 
     public List<Order> listByBuyer(Long buyerId) {
-        User buyer = userRepo.findById(buyerId).orElseThrow();
-        return orderRepo.findByBuyer(buyer);
+        User buyer = userRepository.findById(buyerId).orElseThrow();
+        return orderRepository.findByBuyer(buyer);
     }
 
     // simulate payment update (for online payments)
     public PaymentInfo updatePayment(Long orderId, PaymentInfo.Status newStatus, String txId) {
-        Order order = orderRepo.findById(orderId).orElseThrow();
+        Order order = orderRepository.findById(orderId).orElseThrow();
         PaymentInfo pay = order.getPayment();
         pay.setStatus(newStatus);
         if (txId != null) pay.setTransactionId(txId);
         if (newStatus == PaymentInfo.Status.SUCCESS) pay.setPaidAt(Instant.now());
         order.setPayment(pay);
-        orderRepo.save(order);
+        orderRepository.save(order);
         return pay;
     }
 }

@@ -19,21 +19,21 @@ import java.util.*;
 @Service
 public class UserAuthService {
 
-    private final UserRepository userRepo;
-    private final AddressRepository addressRepo;
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserAuthService(UserRepository userRepo, AddressRepository addressRepo, PasswordEncoder passwordEncoder , JwtUtil jwtUtil) {
-        this.userRepo = userRepo;
-        this.addressRepo = addressRepo;
+    public UserAuthService(UserRepository userRepository, AddressRepository addressRepository, PasswordEncoder passwordEncoder , JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
     public User register(CreateUserDto dto) {
-        if (userRepo.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
-        User u = User.builder()
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
+        User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -41,52 +41,52 @@ public class UserAuthService {
                 .shopName(dto.getShopName())
                 .vendorVerified(false)
                 .build();
-        if (dto.getRole() == Role.USER) u.setVendorVerified(false);
-        return userRepo.save(u);
+        if (dto.getRole() == Role.USER) user.setVendorVerified(false);
+        return userRepository.save(user);
     }
 
     public String login(String email, String rawPassword) {
-        User u = userRepo.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        if (!passwordEncoder.matches(rawPassword, u.getPassword())) throw new BadCredentialsException("Invalid credentials");
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) throw new BadCredentialsException("Invalid credentials");
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", u.getRole().name());
-        claims.put("email", u.getEmail());
-        return jwtUtil.generateToken(String.valueOf(u.getId()), claims);
+        claims.put("role", user.getRole().name());
+        claims.put("email", user.getEmail());
+        return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
     }
 
-    public Optional<User> findById(Long id) { return userRepo.findById(id); }
-    public Optional<User> findByEmail(String email) { return userRepo.findByEmail(email); }
-    public List<User> listAll() { return userRepo.findAll(); }
-    public List<User> findByRole(Role role) { return userRepo.findByRole(role); }
+    public Optional<User> findById(Long id) { return userRepository.findById(id); }
+    public Optional<User> findByEmail(String email) { return userRepository.findByEmail(email); }
+    public List<User> listAll() { return userRepository.findAll(); }
+    public List<User> findByRole(Role role) { return userRepository.findByRole(role); }
 
     public User addAddress(Long userId, Address address) {
-        User u = userRepo.findById(userId).orElseThrow();
-        Address saved = addressRepo.save(address);
-        var list = u.getAddresses();
+        User user = userRepository.findById(userId).orElseThrow();
+        Address saved = addressRepository.save(address);
+        var list = user.getAddresses();
         if (list == null) list = new ArrayList<>();
         list.add(saved);
-        u.setAddresses(list);
-        return userRepo.save(u);
+        user.setAddresses(list);
+        return userRepository.save(user);
     }
 
     public User assignVendor(Long actorId, Long targetId, String shopName) {
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can assign vendor");
-        User target = userRepo.findById(targetId).orElseThrow();
+        User target = userRepository.findById(targetId).orElseThrow();
         target.setRole(Role.VENDOR);
         target.setShopName(shopName);
         target.setVendorVerified(false);
-        return userRepo.save(target);
+        return userRepository.save(target);
     }
 
     public User verifyVendor(Long actorId, Long vendorId) {
 
-        User actor = userRepo.findById(actorId).orElseThrow();
+        User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
-        User vendor = userRepo.findById(vendorId).orElseThrow();
+        User vendor = userRepository.findById(vendorId).orElseThrow();
         if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Not a vendor");
         vendor.setVendorVerified(true);
-        return userRepo.save(vendor);
+        return userRepository.save(vendor);
     }
 
 }
