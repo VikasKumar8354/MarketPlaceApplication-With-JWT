@@ -7,13 +7,9 @@ import com.MarketPlace.Model.User;
 import com.MarketPlace.Repository.AddressRepository;
 import com.MarketPlace.Repository.UserRepository;
 import com.MarketPlace.SecurityConfiguration.JwtUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service

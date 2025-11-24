@@ -3,7 +3,6 @@ package com.MarketPlace.Repository;
 import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 import java.util.Optional;
 
