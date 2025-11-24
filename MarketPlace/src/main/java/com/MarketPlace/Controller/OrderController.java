@@ -44,7 +44,9 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    public List<Order> listAll() { return orderService.listAll(); }
+    public List<Order> listAll() {
+        return orderService.listAll();
+    }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('USER')")
