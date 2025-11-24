@@ -39,7 +39,7 @@ public class ProductController {
         Long actorId = Long.parseLong(subject);
         Category category = null;
         if (dto.getCategoryId() != null) category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
-        Product p = Product.builder()
+        Product product = Product.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
@@ -47,7 +47,7 @@ public class ProductController {
                 .imageUrl(dto.getImageUrl())
                 .category(category)
                 .build();
-        Product created = productService.createProduct(actorId, p);
+        Product created = productService.createProduct(actorId, product);
         return ResponseEntity.ok(created);
     }
 
