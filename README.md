@@ -14,9 +14,7 @@ Requirements:
    mvn spring-boot:run
 
 4) Endpoints:
-
 Auth:
-
 - POST /api/auth/register
   Body: { "name":"...", "email":"...", "password":"...", "role":"USER|VENDOR|ADMIN", "shopName":"..." }
 - POST /api/auth/login
@@ -26,9 +24,7 @@ Auth:
 Use returned token for protected endpoints:
 Authorization: Bearer <token>
 
-
 Examples:
-
 - GET /api/products
 - POST /api/products (requires VENDOR or ADMIN) with header Authorization
 - POST /api/orders (authenticated USER) with header Authorization and body:
@@ -40,7 +36,6 @@ Examples:
 - POST /api/categories (ADMIN to create categories)
 
 Notes:
-
 - Change jwt.secret to a secure random string for production.
 - Passwords are stored hashed with BCrypt.
 - Improve validation and exception handling for production use.
