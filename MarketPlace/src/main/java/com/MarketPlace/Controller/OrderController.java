@@ -15,7 +15,10 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-    public OrderController(OrderService orderService) { this.orderService = orderService; }
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @PostMapping("/order")
     @PreAuthorize("hasRole('USER')")
