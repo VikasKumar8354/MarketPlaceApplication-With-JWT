@@ -15,7 +15,8 @@ public class CategoryController {
     private final CategoryRepository categoryRepository;
     public CategoryController(CategoryRepository categoryRepository) { this.categoryRepository = categoryRepository; }
 
-    @GetMapping
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Category> list() { return categoryRepository.findAll(); }
 
     @PostMapping

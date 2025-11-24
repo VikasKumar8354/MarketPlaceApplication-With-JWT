@@ -23,12 +23,14 @@ public class ProductController {
         this.productService = productService; this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping
+    @GetMapping("/list")
+    @PreAuthorize("hasAnyRole('VENDOR','ADMIN')")
     public Page<Product> list(@RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="10") int size) {
         return productService.listAll(PageRequest.of(page,size));
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('VENDOR','ADMIN')")
     public ResponseEntity<?> get(@PathVariable Long id) {
         return productService.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }

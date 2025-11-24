@@ -18,9 +18,9 @@ public class OrderController {
     private final OrderService orderService;
     public OrderController(OrderService orderService) { this.orderService = orderService; }
 
-    @PostMapping
+    @PostMapping("/order")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> create(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
+    public ResponseEntity<?> createOrder(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
         Long buyerId = Long.parseLong(subject);
         List<OrderItem> items = dto.getItems().stream().map(item ->
                 OrderItem.builder().product(Product.builder().id(item.productId()).build()).quantity(item.quantity()).build()
@@ -42,7 +42,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping
+    @GetMapping("/list")
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
     public List<Order> listAll() {
         return orderService.listAll();
