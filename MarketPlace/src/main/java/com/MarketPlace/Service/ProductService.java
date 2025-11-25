@@ -30,8 +30,14 @@ public class ProductService {
         return productRepository.save(p);
     }
 
-    public Page<Product> listAll(Pageable page) { return productRepository.findAll(page); }
-    public Optional<Product> findById(Long id) { return productRepository.findById(id); }
+    public Page<Product> listAll(Pageable page) {
+        return productRepository.findAll(page);
+    }
+
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
+    }
+
     public Page<Product> findByVendor(Long vendorId, Pageable page) {
         User vendor = userRepository.findById(vendorId).orElseThrow();
         return productRepository.findByVendor(vendor, page);
