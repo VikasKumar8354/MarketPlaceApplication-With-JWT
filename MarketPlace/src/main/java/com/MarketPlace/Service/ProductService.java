@@ -22,12 +22,12 @@ public class ProductService {
         this.productRepository = productRepository; this.categoryRepository = categoryRepository; this.userRepository = userRepository;
     }
 
-    public Product createProduct(Long actorId, Product p) {
+    public Product createProduct(Long actorId, Product product) {
         User actor = userRepository.findById(actorId).orElseThrow();
         if (actor.getRole() == Role.USER) throw new RuntimeException("USER cannot create products");
         if (actor.getRole() == Role.VENDOR && !actor.isVendorVerified()) throw new RuntimeException("Vendor not verified");
-        if (actor.getRole() == Role.VENDOR) p.setVendor(actor);
-        return productRepository.save(p);
+        if (actor.getRole() == Role.VENDOR) product.setVendor(actor);
+        return productRepository.save(product);
     }
 
     public Page<Product> listAll(Pageable page) {
@@ -36,11 +36,6 @@ public class ProductService {
 
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
-    }
-
-    public Page<Product> findByVendor(Long vendorId, Pageable page) {
-        User vendor = userRepository.findById(vendorId).orElseThrow();
-        return productRepository.findByVendor(vendor, page);
     }
 
     public Product updateProduct(Long actorId, Long productId, Product updated) {
