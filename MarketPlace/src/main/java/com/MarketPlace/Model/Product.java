@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class Product {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +23,9 @@ public class Product {
 
     private Double price;
     private Integer stock;
-    private String imageUrl;
+
+    // Image file path only (saved locally)
+    private String imagePath;
 
     @ManyToOne
     private Category category;

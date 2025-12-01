@@ -23,6 +23,7 @@ public class OrderController {
     @PostMapping("/createOrder")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> createOrder(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
+        System.out.println(subject);
         Long buyerId = Long.parseLong(subject);
         List<OrderItem> items = dto.getItems().stream().map(item ->
                 OrderItem.builder().product(Product.builder().id(item.productId()).build()).quantity(item.quantity()).build()
