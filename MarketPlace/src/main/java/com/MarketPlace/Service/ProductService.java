@@ -50,6 +50,7 @@ public class ProductService {
             }
 
             // 3️⃣ Create unique filename
+
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
             // 4️⃣ Save file
