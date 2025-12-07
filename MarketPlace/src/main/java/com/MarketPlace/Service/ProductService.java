@@ -39,6 +39,7 @@ public class ProductService {
 
         try {
             // 1️⃣ ABSOLUTE PATH (Windows)
+
             String basePath = "C:/MarketPlace/uploads/products/";
 
             // 2️⃣ Create directory if not exists
