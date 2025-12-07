@@ -54,6 +54,7 @@ public class ProductService {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
             // 4️⃣ Save file
+
             File savedFile = new File(basePath + fileName);
             file.transferTo(savedFile);
 
