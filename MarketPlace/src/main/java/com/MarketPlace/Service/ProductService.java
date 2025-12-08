@@ -56,6 +56,7 @@ public class ProductService {
             return "/uploads/products/" + fileName;
 
         } catch (Exception e) {
+
             throw new RuntimeException("Image upload failed", e);
         }
     }
