@@ -37,22 +37,18 @@ public class ProductService {
 
         try {
             // 1️⃣ ABSOLUTE PATH (Windows)
-
             String basePath = "C:/MarketPlace/uploads/products/";
 
             // 2️⃣ Create directory if not exists
-
             File directory = new File(basePath);
             if (!directory.exists()) {
                 directory.mkdirs(); // VERY IMPORTANT
             }
 
             // 3️⃣ Create unique filename
-
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
             // 4️⃣ Save file
-
             File savedFile = new File(basePath + fileName);
             file.transferTo(savedFile);
 
