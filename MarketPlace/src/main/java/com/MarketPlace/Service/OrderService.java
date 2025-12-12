@@ -18,7 +18,9 @@ public class OrderService {
     private final UserRepository userRepository;
 
     public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
-        this.orderRepository = orderRepository; this.productRepository = productRepository; this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     // create order with shipping address & payment

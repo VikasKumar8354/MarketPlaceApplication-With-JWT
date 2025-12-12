@@ -50,10 +50,18 @@ public class UserAuthService {
         return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
     }
 
-    public Optional<User> findById(Long id) { return userRepository.findById(id); }
-    public Optional<User> findByEmail(String email) { return userRepository.findByEmail(email); }
-    public List<User> listAll() { return userRepository.findAll(); }
-    public List<User> findByRole(Role role) { return userRepository.findByRole(role); }
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+    public List<User> listAll() {
+        return userRepository.findAll();
+    }
+    public List<User> findByRole(Role role) {
+        return userRepository.findByRole(role);
+    }
 
     public User addAddress(Long userId, Address address) {
         User user = userRepository.findById(userId).orElseThrow();

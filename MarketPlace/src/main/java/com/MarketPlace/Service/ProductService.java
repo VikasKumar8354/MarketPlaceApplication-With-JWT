@@ -55,9 +55,9 @@ public class ProductService {
             // 5️⃣ Return path for DB
             return "/uploads/products/" + fileName;
 
-        } catch (Exception e) {
+        } catch (Exception exception) {
 
-            throw new RuntimeException("Image upload failed", e);
+            throw new RuntimeException("Image upload failed", exception);
         }
     }
 
