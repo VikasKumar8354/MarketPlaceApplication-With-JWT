@@ -22,6 +22,7 @@ public class OrderService {
     }
 
     // create order with shipping address & payment
+
     public Order createOrder(Long buyerId, List<OrderItem> items, Address shippingAddress, PaymentInfo.Method method, String paymentDetails) {
         User buyer = userRepository.findById(buyerId).orElseThrow();
         double total = 0;
