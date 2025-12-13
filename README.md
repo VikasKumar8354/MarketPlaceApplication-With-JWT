@@ -36,6 +36,7 @@ Examples:
 - POST /api/categories (ADMIN to create categories)
 
 Notes:
+
 - Change jwt.secret to a secure random string for production.
 - Passwords are stored hashed with BCrypt.
 - Improve validation and exception handling for production use.
