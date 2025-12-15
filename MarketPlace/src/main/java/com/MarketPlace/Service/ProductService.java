@@ -61,7 +61,6 @@ public class ProductService {
         }
     }
 
-
     public Product createProduct(Long actorId, Product product, MultipartFile imageFile) {
 
         User actor = userRepository.findById(actorId).orElseThrow();
