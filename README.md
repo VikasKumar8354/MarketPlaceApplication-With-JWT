@@ -13,7 +13,8 @@ Requirements:
 3) Build & run:
    mvn spring-boot:run
 
-4) Endpoints: 
+4) Endpoints:
+
 Auth:
 - POST /api/auth/register
   Body: { "name":"...", "email":"...", "password":"...", "role":"USER|VENDOR|ADMIN", "shopName":"..." }
