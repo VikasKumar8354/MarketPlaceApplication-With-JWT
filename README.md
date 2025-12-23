@@ -11,7 +11,6 @@ Requirements:
 2) Update src/main/resources/application.properties with your MySQL credentials and a secure jwt.secret.
 
 3) Build & run:
-   
    mvn spring-boot:run
 
 5) Endpoints:
