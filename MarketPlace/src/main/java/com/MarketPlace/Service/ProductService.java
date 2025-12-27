@@ -84,9 +84,9 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
-    public Optional<Product> findById(Long id) {
-        return productRepository.findById(id);
-    }
+//    public Optional<Product> findById(Long id) {
+//        return productRepository.findById(id);
+//    }
 
     public Product updateProduct(Long actorId, Long productId,
                                  Product updated, MultipartFile image) {
