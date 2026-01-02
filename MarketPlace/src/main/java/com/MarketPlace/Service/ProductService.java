@@ -117,7 +117,6 @@ public class ProductService {
         if (actor.getRole() == Role.VENDOR &&
                 !existing.getVendor().getId().equals(actor.getId()))
             throw new RuntimeException("Vendor cannot delete other vendors' product");
-
         productRepository.delete(existing);
     }
 

@@ -11,9 +11,10 @@ Requirements:
 2) Update src/main/resources/application.properties with your MySQL credentials and a secure jwt.secret.
 
 3) Build & run:
+   
    mvn spring-boot:run
 
-4) Endpoints: 
+5) Endpoints:
 Auth:
 - POST /api/auth/register
   Body: { "name":"...", "email":"...", "password":"...", "role":"USER|VENDOR|ADMIN", "shopName":"..." }
@@ -36,6 +37,7 @@ Examples:
 - POST /api/categories (ADMIN to create categories)
 
 Notes:
+
 - Change jwt.secret to a secure random string for production.
 - Passwords are stored hashed with BCrypt.
 - Improve validation and exception handling for production use.
