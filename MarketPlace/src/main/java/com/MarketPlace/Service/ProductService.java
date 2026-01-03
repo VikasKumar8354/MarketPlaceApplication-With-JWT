@@ -106,7 +106,6 @@ public class ProductService {
 
         if (image != null && !image.isEmpty())
             existing.setImagePath(saveImage(image));
-
         return productRepository.save(existing);
     }
 
