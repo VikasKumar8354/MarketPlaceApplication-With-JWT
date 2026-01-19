@@ -80,9 +80,9 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-//    public Page<Product> listAll(Pageable pageable) {
-//        return productRepository.findAll(pageable);
-//    }
+    public Page<Product> listAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
 
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
