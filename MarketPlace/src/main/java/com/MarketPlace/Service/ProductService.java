@@ -42,7 +42,7 @@ public class ProductService {
             // 2️⃣ Create directory if not exists
             File directory = new File(basePath);
             if (!directory.exists()) {
-                directory.mkdirs(); // VERY IMPORTANT
+                directory.mkdirs();
             }
 
             // 3️⃣ Create unique filename
