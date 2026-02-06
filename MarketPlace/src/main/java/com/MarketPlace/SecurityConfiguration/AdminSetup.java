@@ -15,13 +15,13 @@ public class AdminSetup {
     @Bean
     CommandLineRunner createAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            String adminEmail = "admin@marketplace.com";
+            String adminEmail = "raj20028354@gmail.com";
 
             if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 User admin = new User();
                 admin.setName("Admin");
                 admin.setEmail(adminEmail);
-                admin.setPassword(passwordEncoder.encode("Admin@123"));
+                admin.setPassword(passwordEncoder.encode("Saanvi@123"));
                 admin.setRole(Role.ADMIN);
                 admin.setShopName("Admin Shop");
                 userRepository.save(admin);
