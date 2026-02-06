@@ -1,9 +1,6 @@
 package com.MarketPlace.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -18,12 +15,17 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String label; // 'Home', 'Office'
-    private String line1;
-    private String line2;
+    private String label;      // Home, Office, etc.
+    private String line1;      // Street / Building
+    private String line2;      // Optional
     private String city;
     private String state;
     private String postalCode;
     private String country;
     private String phone;
+
+    // Optional: link to user if you want saved addresses
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

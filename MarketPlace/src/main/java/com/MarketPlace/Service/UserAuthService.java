@@ -1,96 +1,51 @@
 package com.MarketPlace.Service;
 
-import com.MarketPlace.DTOs.CreateUserDto;
-import com.MarketPlace.Model.Address;
-import com.MarketPlace.Model.Role;
+import com.MarketPlace.DTOs.ResetPasswordRequest;
 import com.MarketPlace.Model.User;
-import com.MarketPlace.Repository.AddressRepository;
 import com.MarketPlace.Repository.UserRepository;
-import com.MarketPlace.SecurityConfiguration.JwtUtil;
-import org.springframework.security.authentication.BadCredentialsException;
+import com.MarketPlace.SecurityConfiguration.JwtService;
+import com.MarketPlace.emailService.EmailService;
+import com.MarketPlace.emailService.OtpService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.*;
 
 @Service
 public class UserAuthService {
 
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    @Autowired
+    private UserRepository repo;
 
-    public UserAuthService(UserRepository userRepository, AddressRepository addressRepository, PasswordEncoder passwordEncoder , JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.addressRepository = addressRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+    @Autowired
+    private PasswordEncoder encoder;
 
-    public User register(CreateUserDto dto) {
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) throw new RuntimeException("Email already used");
-        User user = User.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .role(dto.getRole() != null ? dto.getRole() : Role.USER)
-                .shopName(dto.getShopName())
-                .vendorVerified(false)
-                .build();
-        if (dto.getRole() == Role.USER) user.setVendorVerified(false);
-        return userRepository.save(user);
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private OtpService otpService;
+
+    // Send OTP
+    public void sendOtp(String email) {
+        User user = repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String otp = otpService.generateOtp(email);
+        emailService.sendOtp(email, otp); // send via email
     }
 
-    public String login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
-        if (!passwordEncoder.matches(rawPassword, user.getPassword())) throw new BadCredentialsException("Invalid credentials");
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole().name());
-        claims.put("email", user.getEmail());
-        return jwtUtil.generateToken(String.valueOf(user.getId()), claims);
-    }
+    // Reset password
+    public void resetPassword(ResetPasswordRequest req) {
+        boolean valid = otpService.verifyOtp(req.getEmail(), req.getOtp());
+        if (!valid) throw new RuntimeException("Invalid or expired OTP");
 
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-    public List<User> listAll() {
-        return userRepository.findAll();
-    }
-    public List<User> findByRole(Role role) {
-        return userRepository.findByRole(role);
-    }
+        User user = repo.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    public User addAddress(Long userId, Address address) {
-        User user = userRepository.findById(userId).orElseThrow();
-        Address saved = addressRepository.save(address);
-        var list = user.getAddresses();
-        if (list == null) list = new ArrayList<>();
-        list.add(saved);
-        user.setAddresses(list);
-        return userRepository.save(user);
-    }
-
-    public User assignVendor(Long actorId, Long targetId, String shopName) {
-        User actor = userRepository.findById(actorId).orElseThrow();
-        if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can assign vendor");
-        User target = userRepository.findById(targetId).orElseThrow();
-        target.setRole(Role.VENDOR);
-        target.setShopName(shopName);
-        target.setVendorVerified(false);
-        return userRepository.save(target);
-    }
-
-    public User verifyVendor(Long actorId, Long vendorId) {
-
-        User actor = userRepository.findById(actorId).orElseThrow();
-        if (actor.getRole() != Role.ADMIN) throw new RuntimeException("Only ADMIN can verify vendor");
-        User vendor = userRepository.findById(vendorId).orElseThrow();
-        if (vendor.getRole() != Role.VENDOR) throw new RuntimeException("Not a vendor");
-        vendor.setVendorVerified(true);
-        return userRepository.save(vendor);
+        user.setPassword(encoder.encode(req.getNewPassword()));
+        repo.save(user);
     }
 
 }

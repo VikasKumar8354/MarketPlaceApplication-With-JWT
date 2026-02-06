@@ -1,6 +1,7 @@
 package com.MarketPlace.Controller;
 
 import com.MarketPlace.DTOs.OrderDto;
+import com.MarketPlace.DTOs.OrderResponseDto;
 import com.MarketPlace.Model.*;
 import com.MarketPlace.Service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -22,48 +22,44 @@ public class OrderController {
 
     @PostMapping("/createOrder")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
-        System.out.println(subject);
+    public ResponseEntity<OrderResponseDto> createOrder(@AuthenticationPrincipal String subject, @RequestBody OrderDto dto) {
         Long buyerId = Long.parseLong(subject);
-        List<OrderItem> items = dto.getItems().stream().map(item ->
-                OrderItem.builder().product(Product.builder().id(item.productId()).build()).quantity(item.quantity()).build()
-        ).collect(Collectors.toList());
-
-        Address address = Address.builder()
-                .label(dto.getAddressLabel())
-                .line1(dto.getLine1())
-                .line2(dto.getLine2())
-                .city(dto.getCity())
-                .state(dto.getState())
-                .postalCode(dto.getPostalCode())
-                .country(dto.getCountry())
-                .phone(dto.getPhone())
-                .build();
-
-        PaymentInfo.Method method = PaymentInfo.Method.valueOf(dto.getPaymentMethod());
-        Order order = orderService.createOrder(buyerId, items, address, method, dto.getPaymentDetails());
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(orderService.createOrder(
+                buyerId,
+                dto.getItems().stream().map(item -> OrderItem.builder()
+                        .product(Product.builder().id(item.productId()).build())
+                        .quantity(item.quantity())
+                        .build()).toList(),
+                Address.builder()
+                        .label(dto.getAddressLabel())
+                        .line1(dto.getLine1())
+                        .line2(dto.getLine2())
+                        .city(dto.getCity())
+                        .state(dto.getState())
+                        .postalCode(dto.getPostalCode())
+                        .country(dto.getCountry())
+                        .phone(dto.getPhone())
+                        .build(),
+                PaymentInfo.Method.valueOf(dto.getPaymentMethod()),
+                dto.getPaymentDetails()
+        ));
     }
 
     @GetMapping("/list")
     @PreAuthorize("hasAnyRole('ADMIN','VENDOR')")
-    public List<Order> listAll() {
-        return orderService.listAll();
+    public ResponseEntity<List<OrderResponseDto>> listAll() {
+        return ResponseEntity.ok(orderService.listAllOrders());
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('USER')")
-    public List<Order> myOrders(@AuthenticationPrincipal String subject) {
-        Long buyerId = Long.parseLong(subject);
-        return orderService.listByBuyer(buyerId);
+    public ResponseEntity<List<OrderResponseDto>> myOrders(@AuthenticationPrincipal String subject) {
+        return ResponseEntity.ok(orderService.listOrdersByBuyer(Long.parseLong(subject)));
     }
 
-    // simulate payment callback/update (admin or buyer)
     @PostMapping("/{orderId}/payment")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<?> updatePayment(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required=false) String txId) {
-        PaymentInfo.Status sts = PaymentInfo.Status.valueOf(status);
-        PaymentInfo updated = orderService.updatePayment(orderId, sts, txId);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<OrderResponseDto> updatePayment(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required = false) String txId) {
+        return ResponseEntity.ok(orderService.updatePayment(orderId, PaymentInfo.Status.valueOf(status), txId));
     }
 }

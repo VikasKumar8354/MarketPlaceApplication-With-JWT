@@ -1,39 +1,28 @@
 package com.MarketPlace.Controller;
 
-import com.MarketPlace.DTOs.AuthRequest;
-import com.MarketPlace.DTOs.AuthResponse;
-import com.MarketPlace.DTOs.CreateUserDto;
-import com.MarketPlace.Model.User;
-import com.MarketPlace.Service.UserAuthService;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.MarketPlace.emailService.OtpService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserAuthService userAuthService;
-    public AuthController(UserAuthService userAuthService) {
-        this.userAuthService = userAuthService;
+    private final OtpService otpService;
+
+    public AuthController(OtpService otpService) {
+        this.otpService = otpService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody CreateUserDto dto) {
-        User user = userAuthService.register(dto);
-        return ResponseEntity.ok(user);
+    @PostMapping("/sendOtp")
+    public String sendOtp(@RequestParam String phone) {
+        String otp = otpService.generateOtp(phone);
+        // Ideally you send OTP to the phone via SMS API, not return it
+        return "OTP sent to " + phone;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        try {
-            String token = userAuthService.login(authRequest.getEmail(), authRequest.getPassword());
-            return ResponseEntity.ok(new AuthResponse(token));
-        } catch (Exception exception) {
-            return ResponseEntity.status(401).body("Invalid Credentials");
-        }
+    @PostMapping("/verifyOtp")
+    public String verifyOtp(@RequestParam String phone, @RequestParam String otp) {
+        boolean valid = otpService.verifyOtp(phone, otp);
+        return valid ? "OTP Verified" : "Invalid or expired OTP";
     }
 }
