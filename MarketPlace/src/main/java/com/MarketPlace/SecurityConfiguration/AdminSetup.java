@@ -26,7 +26,7 @@ public class AdminSetup {
                 admin.setShopName("Admin Shop");
                 userRepository.save(admin);
 
-                System.out.println("Admin created successfully");
+                System.out.println("✅ ADMIN CREATED SUCCESSFULLY");
             } else {
                 System.out.println("ℹ️ ADMIN ALREADY EXISTS");
             }
