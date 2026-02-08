@@ -16,7 +16,6 @@ public class AuthController {
     @PostMapping("/sendOtp")
     public String sendOtp(@RequestParam String phone) {
         String otp = otpService.generateOtp(phone);
-
         // Ideally you send OTP to the phone via SMS API, not return it
         return "OTP sent to " + phone;
     }
