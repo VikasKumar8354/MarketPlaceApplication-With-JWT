@@ -6,7 +6,6 @@ import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
 import com.MarketPlace.Repository.UserRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
