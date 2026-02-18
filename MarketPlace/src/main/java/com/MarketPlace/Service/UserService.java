@@ -57,7 +57,7 @@ public class UserService {
         return userRepository.save(target);
     }
 
-     // ✅ VERIFY VENDOR (ADMIN)
+    // ✅ VERIFY VENDOR (ADMIN)
     public User verifyVendor(Long actorId, Long vendorId) {
 
         User admin = userRepository.findById(actorId)
