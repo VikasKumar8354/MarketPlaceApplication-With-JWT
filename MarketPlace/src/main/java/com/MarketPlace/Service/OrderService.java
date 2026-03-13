@@ -46,7 +46,7 @@ public class OrderService {
             OrderItem orderItem = OrderItem.builder()
                     .product(product)
                     .quantity(item.getQuantity())
-                    .price(product.getPrice()) // snapshot price
+                    .price(product.getPrice())
                     .build();
 
             persistedItems.add(orderItem);
@@ -63,7 +63,7 @@ public class OrderService {
                 .build();
 
         Instant now = Instant.now();
-        Instant expectedDelivery = now.plusSeconds(3 * 24 * 3600); // 3 days
+        Instant expectedDelivery = now.plusSeconds(3 * 24 * 3600);
 
         Order order = Order.builder()
                 .buyer(buyer)
