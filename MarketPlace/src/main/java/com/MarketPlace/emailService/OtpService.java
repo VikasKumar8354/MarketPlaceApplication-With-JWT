@@ -35,7 +35,7 @@ public class OtpService {
         }
 
         boolean valid = data.otp.equals(otp);
-        if (valid) otpCache.remove(key); // consume OTP
+        if (valid) otpCache.remove(key);
         return valid;
     }
 }

@@ -34,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 Jws<Claims> parsed = jwtUtil.parseToken(token);
                 Claims claims = parsed.getBody();
-                String subject = claims.getSubject(); // userId
+                String subject = claims.getSubject();
                 Object roleObj = claims.get("role");
 
                 Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();

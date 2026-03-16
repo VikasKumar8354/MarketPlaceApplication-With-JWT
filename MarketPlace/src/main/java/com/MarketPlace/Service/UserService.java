@@ -1,6 +1,5 @@
 package com.MarketPlace.Service;
 
-
 import com.MarketPlace.Model.Address;
 import com.MarketPlace.Model.Role;
 import com.MarketPlace.Model.User;
@@ -33,7 +32,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        address.setUser(user); // relation set
+        address.setUser(user);
         user.getAddresses().add(address);
 
         return userRepository.save(user);

@@ -33,7 +33,7 @@ public class UserAuthService {
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         String otp = otpService.generateOtp(email);
-        emailService.sendOtp(email, otp); // send via email
+        emailService.sendOtp(email, otp);
     }
 
     // Reset password
