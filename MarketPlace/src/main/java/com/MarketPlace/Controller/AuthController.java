@@ -1,28 +1,48 @@
 package com.MarketPlace.Controller;
 
-import com.MarketPlace.emailService.OtpService;
+import com.MarketPlace.DTOs.AuthRequest;
+import com.MarketPlace.DTOs.CreateUserDto;
+import com.MarketPlace.DTOs.ResetPasswordRequest;
+import com.MarketPlace.Service.UserAuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final OtpService otpService;
+    @Autowired
+    private UserAuthService service;
 
-    public AuthController(OtpService otpService) {
-        this.otpService = otpService;
+    // REGISTER
+    @PostMapping("/register")
+    public String register(@RequestBody CreateUserDto dto){
+
+        return service.register(dto);
     }
 
-    @PostMapping("/sendOtp")
-    public String sendOtp(@RequestParam String phone) {
-        String otp = otpService.generateOtp(phone);
-        // Ideally you send OTP to the phone via SMS API, not return it
-        return "OTP sent to " + phone;
+    // LOGIN
+    @PostMapping("/login")
+    public String login(@RequestBody AuthRequest req){
+
+        return service.login(req);
     }
 
-    @PostMapping("/verifyOtp")
-    public String verifyOtp(@RequestParam String phone, @RequestParam String otp) {
-        boolean valid = otpService.verifyOtp(phone, otp);
-        return valid ? "OTP Verified" : "Invalid or expired OTP";
+    // SEND OTP
+    @PostMapping("/forgotPassword")
+    public String forgotPassword(@RequestParam String email){
+
+        service.sendOtp(email);
+
+        return "OTP sent to email";
+    }
+
+    // RESET PASSWORD
+    @PostMapping("/resetPassword")
+    public String resetPassword(@RequestBody ResetPasswordRequest req){
+
+        service.resetPassword(req);
+
+        return "Password Reset Successfully";
     }
 }

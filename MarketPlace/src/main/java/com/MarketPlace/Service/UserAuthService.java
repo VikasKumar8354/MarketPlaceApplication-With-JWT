@@ -1,5 +1,7 @@
 package com.MarketPlace.Service;
 
+import com.MarketPlace.DTOs.AuthRequest;
+import com.MarketPlace.DTOs.CreateUserDto;
 import com.MarketPlace.DTOs.ResetPasswordRequest;
 import com.MarketPlace.Model.User;
 import com.MarketPlace.Repository.UserRepository;
@@ -28,24 +30,64 @@ public class UserAuthService {
     @Autowired
     private OtpService otpService;
 
-    // Send OTP
-    public void sendOtp(String email) {
+    // REGISTER
+    public String register(CreateUserDto dto){
+
+        if(repo.findByEmail(dto.getEmail()).isPresent()){
+            throw new RuntimeException("User already exists");
+        }
+
+        User user = new User();
+
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(encoder.encode(dto.getPassword()));
+        user.setRole(dto.getRole());
+        user.setShopName(dto.getShopName());
+
+        repo.save(user);
+
+        return "User Registered Successfully";
+    }
+
+    // LOGIN
+    public String login(AuthRequest req){
+
+        User user = repo.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if(!encoder.matches(req.getPassword(), user.getPassword())){
+            throw new RuntimeException("Invalid password");
+        }
+
+        return jwtService.generateToken(user);
+    }
+
+    // SEND OTP
+    public void sendOtp(String email){
+
         User user = repo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
         String otp = otpService.generateOtp(email);
+
         emailService.sendOtp(email, otp);
     }
 
-    // Reset password
-    public void resetPassword(ResetPasswordRequest req) {
+    // RESET PASSWORD
+    public void resetPassword(ResetPasswordRequest req){
+
         boolean valid = otpService.verifyOtp(req.getEmail(), req.getOtp());
-        if (!valid) throw new RuntimeException("Invalid or expired OTP");
+
+        if(!valid){
+            throw new RuntimeException("Invalid OTP");
+        }
 
         User user = repo.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setPassword(encoder.encode(req.getNewPassword()));
+
         repo.save(user);
     }
-
 }
