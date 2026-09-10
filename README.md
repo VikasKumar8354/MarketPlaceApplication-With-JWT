@@ -1,7 +1,6 @@
 # Marketplace Backend (Spring Boot + JWT + MySQL)
 
 Requirements:
-
 - Java 17
 - Maven
 - MySQL server
